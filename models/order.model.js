@@ -1,8 +1,17 @@
 import mongoose, { Schema } from "mongoose";
 
+const generateOrderId = () => {
+    return Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+};
 const orderSchema = new Schema({
     sku: { type: String, required: true, unique: true, uppercase: true },
     prodName: { type: String, required: true },
+    orderID: {
+        type: String,
+        required: true,
+        unique: true, 
+        default: generateOrderId, 
+    },
     quantity: { type: Number, required: true },
     shippingAddress: { type: String, required: true },
     status: {

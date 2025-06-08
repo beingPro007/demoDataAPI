@@ -37,25 +37,33 @@ const fetchOrdersByPhone = asynchandler(async (req, res) => {
 });
 
 const getOrderStatusByPhone = asynchandler(async (req, res) => {
-    const { phoneNumber, orderName } = req.query;
-    console.log("Fetching status for:", phoneNumber, orderName);
+    const { phoneNumber, orderId } = req.query;
+    console.log("Fetching status for:", phoneNumber, orderId);
 
-    if (!phoneNumber || !orderName) {
-        return res.status(400).json({ message: "Phone number and order name are required" });
+    if (!phoneNumber || !orderId) {
+        return res.status(400).json({ message: "Phone number and orderID name are required" });
     }
 
     // Normalize phoneNumber
-    const user = await User.findOne({ phoneNumber });
+    const normalizedPhone = phoneNumber.replace(/\D/g, '');
+
+    // Find user by phoneNumber
+    const user = await User.findOne({
+        phoneNumber: { $regex: new RegExp(normalizedPhone + '$') } // ends with normalizedPhone
+    });      
+
     console.log("User data is:", user);
 
     if (!user) {
         return res.status(404).json({ message: "User not found" });
     }
+    console.log("User and orderID is: ", user, orderId);
+    
 
     // Find order belonging to the user by product name (case-insensitive)
     const order = await Order.findOne({
         userId: user._id,
-        prodName: new RegExp(`^${orderName}$`, 'i')
+        orderID: orderId,
     });
 
     if (!order) {
@@ -126,6 +134,38 @@ const fetchOrdersByBrand = asynchandler(async (req, res) => {
         orders,
     });
 });
+
+const updateShippingAddress = asynchandler(async (req, res) => {
+    const { phoneNumber, orderId, shippingAddress } = req.body;
+
+    if (!phoneNumber || !orderId || !shippingAddress) {
+        return res.status(400).json({ message: "phoneNumber, orderId, and shippingAddress are required" });
+    }
+
+    // Find user by phone number
+    const user = await User.findOne({ phoneNumber: phoneNumber.trim() });
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find order by ID and user
+    const order = await Order.findOne({
+        orderID: orderId,
+        userId: user._id,
+        status: { $in: ["created", "shipped"] } // Only allow shippingAddress update if order isn't delivered/cancelled
+    });
+
+    if (!order) {
+        return res.status(404).json({ message: "Order not found or cannot update shipping shippingAddress" });
+    }
+
+    // Update shipping address
+    order.shippingAddress = shippingAddress;
+    await order.save();
+
+    res.status(200).json({ message: "Shipping address updated successfully", order });
+});
+
   
 const cancelOrder = asynchandler(async (req, res) => {
     const { phoneNumber, sku } = req.body;
@@ -320,5 +360,6 @@ export {
     getOrderStatusByPhone,
     fetchOrdersByBrand,
     cancelOrder,
-    refundOrder
+    refundOrder,
+    updateShippingAddress
 };
