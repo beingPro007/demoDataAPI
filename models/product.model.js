@@ -6,40 +6,48 @@ const productSchema = new Schema(
             type: String,
             required: true,
             unique: true,
-            index: true,
+            trim: true,
             uppercase: true,
-            match: /^SKU\d{3}$/
+            match: /^SKU\d{3}$/, // e.g., SKU123
         },
         name: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
         },
         price: {
             type: Number,
             required: true,
-            min: 0
+            min: 0,
         },
         inventory: {
             type: Number,
             required: true,
             min: 0,
-            default: 0
+            default: 0,
         },
-        brand: {
+        brandPhoneNumber: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
+            match: /^[\d+\-\s()]{7,20}$/, // Basic phone validation
         },
-        owned_by: {
+        brandOwner: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        owned_by_supplier: {
             type: Schema.Types.ObjectId,
             ref: "Supplier",
-            required: true
-        }
+            required: true,
+        },
     },
     {
-        timestamps: true
+        timestamps: true,
     }
 );
 
-export const Product = mongoose.model("Product", productSchema);
+const Product = mongoose.model("Product", productSchema);
+
+export default Product;

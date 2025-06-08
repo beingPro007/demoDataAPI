@@ -1,558 +1,320 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Supplier & Product Management</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 40px auto 20px auto;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            padding: 2em;
-        }
-        h2, h3 {
-            text-align: center;
-            margin-bottom: 1em;
-        }
-        form label {
-            display: block;
-            margin-top: 1em;
-            margin-bottom: 0.3em;
-            color: #333;
-        }
-        form input, form select, form textarea {
-            width: 100%;
-            padding: 0.7em;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1em;
-            margin-bottom: 0.5em;
-        }
-        button[type="submit"], .action-btn {
-            margin-top: 1em;
-            background: #1976d2;
-            color: #fff;
-            border: none;
-            padding: 0.7em 1.2em;
-            border-radius: 4px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button[type="submit"]:hover, .action-btn:hover {
-            background: #1565c0;
-        }
-        #supplier-message, #product-message, .api-message {
-            margin-top: 1em;
-            text-align: center;
-            font-weight: bold;
-        }
-        .section {
-            margin-top: 2em;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fafbfc;
-            margin-bottom: 2em;
-        }
-        th, td {
-            border: 1px solid #e0e0e0;
-            padding: 0.6em 0.4em;
-            text-align: center;
-        }
-        th {
-            background: #e3eaf6;
-            color: #333;
-        }
-        td {
-            color: #444;
-        }
-        .empty-msg {
-            text-align: center;
-            color: #888;
-            padding: 1em 0;
-        }
-        .products-table {
-            margin: 0.5em 0 1em 0;
-            background: #f8fafd;
-        }
-        .product-actions {
-            display: flex;
-            gap: 0.5em;
-            justify-content: center;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 10;
-            left: 0; top: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.3);
-            align-items: center; justify-content: center;
-        }
-        .modal-content {
-            background: #fff;
-            padding: 2em;
-            border-radius: 8px;
-            min-width: 320px;
-            max-width: 90vw;
-            position: relative;
-        }
-        .close-modal {
-            position: absolute;
-            right: 1em;
-            top: 1em;
-            background: none;
-            border: none;
-            font-size: 1.2em;
-            cursor: pointer;
-        }
-        @media (max-width: 900px) {
-            .container { padding: 1em; }
-        }
+      /* Your existing CSS styles remain unchanged */
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 40px auto 20px auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        padding: 2em;
+      }
+      h2,
+      h3 {
+        text-align: center;
+        margin-bottom: 1em;
+      }
+      form label {
+        display: block;
+        margin-top: 1em;
+        margin-bottom: 0.3em;
+        color: #333;
+      }
+      form input,
+      form select,
+      form textarea {
+        width: 100%;
+        padding: 0.7em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1em;
+        margin-bottom: 0.5em;
+      }
+      button[type="submit"],
+      .action-btn {
+        margin-top: 1em;
+        background: #1976d2;
+        color: #fff;
+        border: none;
+        padding: 0.7em 1.2em;
+        border-radius: 4px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      button[type="submit"]:hover,
+      .action-btn:hover {
+        background: #1565c0;
+      }
+      .section {
+        margin-top: 2em;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fafbfc;
+        margin-bottom: 2em;
+      }
+      th,
+      td {
+        border: 1px solid #e0e0e0;
+        padding: 0.6em 0.4em;
+        text-align: center;
+      }
+      th {
+        background: #e3eaf6;
+        color: #333;
+      }
+      .empty-msg {
+        text-align: center;
+        color: #888;
+        padding: 1em 0;
+      }
+      .products-table {
+        margin: 0.5em 0 1em 0;
+        background: #f8fafd;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h2>Supplier & Product Management</h2>
-        <form id="supplierForm">
-            <label for="supplier_id">Supplier ID:</label>
-            <input type="text" id="supplier_id" name="supplier_id" required maxlength="12">
+      <h2>Supplier & Product Management</h2>
 
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
+      <!-- Supplier Form -->
+      <form id="supplierForm">
+        <label for="supplier_id">Supplier ID:</label>
+        <input
+          type="text"
+          id="supplier_id"
+          name="supplier_id"
+          required
+          maxlength="12"
+        />
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required />
 
-            <button type="submit">Add Supplier</button>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+
+        <button type="submit">Add Supplier</button>
+      </form>
+      <div id="supplier-message"></div>
+
+      <!-- Product Form -->
+      <div class="section">
+        <h3>Add Product</h3>
+        <form id="productForm">
+          <label for="sku">SKU:</label>
+          <input type="text" id="sku" name="sku" required maxlength="10" />
+
+          <label for="productName">Product Name:</label>
+          <input type="text" id="productName" name="name" required />
+
+          <label for="price">Price:</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            step="0.01"
+            min="0"
+            required
+          />
+
+          <label for="inventory">Inventory:</label>
+          <input
+            type="number"
+            id="inventory"
+            name="inventory"
+            min="0"
+            required
+          />
+
+          <label for="brandPhoneNumber">Brand Phone Number:</label>
+          <input
+            type="tel"
+            id="brandPhoneNumber"
+            name="brandPhoneNumber"
+            required
+            pattern="[\d+\-\s()]{7,20}"
+          />
+
+          <label for="owned_by">Supplier:</label>
+          <select id="owned_by" name="owned_by" required>
+            <option value="">Select Supplier</option>
+          </select>
+
+          <button type="submit">Add Product</button>
         </form>
-        <div id="supplier-message"></div>
+        <div id="product-message"></div>
+      </div>
 
-        <div class="section">
-            <h3>Add Product</h3>
-            <form id="productForm">
-                <label for="sku">SKU:</label>
-                <input type="text" id="sku" name="sku" required maxlength="10">
-
-                <label for="pname">Name:</label>
-                <input type="text" id="pname" name="pname" required>
-
-                <label for="price">Price:</label>
-                <input type="number" id="price" name="price" step="0.01" min="0" required>
-
-                <label for="inventory">Inventory:</label>
-                <input type="number" id="inventory" name="inventory" min="0" required>
-
-                <label for="brand">Brand:</label>
-                <input type="text" id="brand" name="brand" required>
-
-                <label for="owned_by">Supplier:</label>
-                <select id="owned_by" name="owned_by" required>
-                    <option value="">Select Supplier</option>
-                </select>
-
-                <button type="submit">Add Product</button>
-            </form>
-            <div id="product-message"></div>
-        </div>
-
-        <div class="section">
-            <h3>All Suppliers (Flat List)</h3>
-            <div id="all-suppliers"></div>
-        </div>
-
-        <div class="section">
-            <h3>All Products (Flat List)</h3>
-            <div id="all-products"></div>
-        </div>
-
-        <div class="section">
-            <h3>Suppliers & Their Products (Grouped)</h3>
-            <div id="suppliers"></div>
-        </div>
-    </div>
-
-    <!-- Modal for notifications/messages/feedback -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModal()">&times;</button>
-            <form id="modalForm">
-                <div id="modalFields"></div>
-                <button type="submit">Send</button>
-                <div class="api-message" id="modal-message"></div>
-            </form>
-        </div>
+      <!-- Product List -->
+      <div class="section">
+        <h3>All Products</h3>
+        <div id="all-products"></div>
+      </div>
     </div>
 
     <script>
-        const SUPPLIER_API_BASE = 'http://localhost:3000/api/v1/supplier';
-        const PRODUCT_API_BASE = 'http://localhost:3000/api/v1/product';
+      const PRODUCT_API = "http://localhost:3000/api/v1/product";
+      const SUPPLIER_API = "http://localhost:3000/api/v1/supplier";
 
-        // --- Supplier Add ---
-        document.getElementById('supplierForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const supplier_id = document.getElementById('supplier_id').value.trim();
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-
-            const messageDiv = document.getElementById('supplier-message');
-            messageDiv.textContent = "";
-
-            try {
-                const response = await fetch(`${SUPPLIER_API_BASE}/addSupplier`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ supplier_id, name, email })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    messageDiv.style.color = "green";
-                    messageDiv.textContent = `Supplier "${name}" added successfully!`;
-                    document.getElementById('supplierForm').reset();
-                    await fetchSuppliersForDropdown();
-                    fetchAllSuppliersWithProducts();
-                    fetchAllSuppliersFlat();
-                } else {
-                    messageDiv.style.color = "red";
-                    messageDiv.textContent = data.message || "Error adding supplier.";
-                }
-            } catch (error) {
-                messageDiv.style.color = "red";
-                messageDiv.textContent = `Network error. Please try again. (${error.message})`;
+      // Populate supplier dropdown
+      async function loadSuppliers() {
+        const select = document.getElementById("owned_by");
+        select.innerHTML = `<option value="">Select Supplier</option>`;
+        try {
+          const res = await fetch(`${SUPPLIER_API}/fetchAllSuppliers`);
+          const data = await res.json();
+          if (Array.isArray(data.suppliers)) {
+            for (const supplier of data.suppliers) {
+              select.innerHTML += `<option value="${supplier.id}">${supplier.supplier_id} - ${supplier.name}</option>`;
             }
+          }
+        } catch (err) {
+          console.error("Error loading suppliers:", err);
+        }
+      }
+
+      // Add Supplier
+      document
+        .getElementById("supplierForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const supplier_id = document.getElementById("supplier_id").value;
+          const name = document.getElementById("name").value;
+          const email = document.getElementById("email").value;
+          const messageDiv = document.getElementById("supplier-message");
+          try {
+            const res = await fetch(`${SUPPLIER_API}/addSupplier`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ supplier_id, name, email }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+              messageDiv.style.color = "green";
+              messageDiv.textContent = `Supplier added successfully!`;
+              this.reset();
+              loadSuppliers();
+            } else {
+              messageDiv.style.color = "red";
+              messageDiv.textContent =
+                data.message || "Failed to add supplier.";
+            }
+          } catch (err) {
+            messageDiv.style.color = "red";
+            messageDiv.textContent = `Error: ${err.message}`;
+          }
         });
 
-        // --- Product Add ---
-        document.getElementById('productForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+      // Add Product
+      document
+        .getElementById("productForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-            const sku = document.getElementById('sku').value.trim();
-            const name = document.getElementById('pname').value.trim();
-            const price = parseFloat(document.getElementById('price').value);
-            const inventory = parseInt(document.getElementById('inventory').value, 10);
-            const brand = document.getElementById('brand').value.trim();
-            const owned_by = document.getElementById('owned_by').value;
+          const sku = document.getElementById("sku").value.trim();
+          const name = document.getElementById("productName").value.trim();
+          const price = parseFloat(document.getElementById("price").value);
+          const inventory = parseInt(
+            document.getElementById("inventory").value
+          );
+          const brandPhoneNumber = document
+            .getElementById("brandPhoneNumber")
+            .value.trim();
+          const owned_by = document.getElementById("owned_by").value;
 
-            const messageDiv = document.getElementById('product-message');
-            messageDiv.textContent = "";
+          console.log("Name of the product", name);
 
-            if (!owned_by) {
-                messageDiv.style.color = "red";
-                messageDiv.textContent = "Please select a supplier.";
-                return;
+          const messageDiv = document.getElementById("product-message");
+          messageDiv.textContent = "";
+
+          try {
+            const response = await fetch(`${PRODUCT_API}/addProduct`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                sku,
+                name,
+                price,
+                inventory,
+                brandPhoneNumber,
+                owned_by,
+              }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+              messageDiv.style.color = "green";
+              messageDiv.textContent = `Product "${name}" added successfully!`;
+              this.reset();
+            } else {
+              messageDiv.style.color = "red";
+              messageDiv.textContent = data.message || "Error adding product.";
             }
-
-            try {
-                const response = await fetch(`${PRODUCT_API_BASE}/addProduct`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sku, name, price, inventory, brand, owned_by })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    messageDiv.style.color = "green";
-                    messageDiv.textContent = `Product "${name}" added successfully!`;
-                    document.getElementById('productForm').reset();
-                    fetchAllSuppliersWithProducts();
-                    fetchAllProductsFlat();
-                } else {
-                    messageDiv.style.color = "red";
-                    messageDiv.textContent = data.message || "Error adding product.";
-                }
-            } catch (error) {
-                messageDiv.style.color = "red";
-                messageDiv.textContent = `Network error. Please try again. (${error.message})`;
-            }
+          } catch (err) {
+            messageDiv.style.color = "red";
+            messageDiv.textContent = `Network error: ${err.message}`;
+          }
         });
+      // Fetch all products
+      async function fetchAllProducts() {
+        const div = document.getElementById("all-products");
+        div.innerHTML = "Loading...";
+        try {
+          const res = await fetch(`${PRODUCT_API}/fetchAllProducts`);
+          const data = await res.json();
 
-        // --- Fetch Suppliers for Dropdown in Product Form ---
-        async function fetchSuppliersForDropdown() {
-            const select = document.getElementById('owned_by');
-            select.innerHTML = `<option value="">Select Supplier</option>`;
-            try {
-                const response = await fetch(`${SUPPLIER_API_BASE}/fetchAllSuppliers`);
-                const data = await response.json();
-                if (response.ok && Array.isArray(data.suppliers)) {
-                    for (const s of data.suppliers) {
-                        select.innerHTML += `<option value="${s.id}">${s.supplier_id} - ${s.name}</option>`;
-                    }
-                }
-            } catch (error) {
-                // ignore for now
+          if (Array.isArray(data.products) && data.products.length > 0) {
+            let html = `<table><thead>
+        <tr>
+          <th>SKU</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Inventory</th>
+          <th>Brand Phone</th>
+          <th>Supplier</th>
+        </tr>
+      </thead><tbody>`;
+
+            for (const p of data.products) {
+              console.log("product", p);
+
+              html += `<tr>
+          <td>${p.sku}</td>
+          <td>${p.name}</td>
+          <td>$${p.price.toFixed(2)}</td>
+          <td>${p.inventory}</td>
+          <td>${p.brandPhoneNumber || ""}</td>
+          <td>${p.owned_by_supplier ? p.owned_by_supplier.supplier_id : "N/A"}</td>
+        </tr>`;
             }
+
+            html += `</tbody></table>`;
+            div.innerHTML = html;
+          } else {
+            div.innerHTML = `<p class="empty-msg">No products found.</p>`;
+          }
+        } catch (err) {
+          div.innerHTML = `<p style="color:red;">Error loading products: ${err.message}</p>`;
         }
+      }
 
-        // --- Fetch All Suppliers (Flat List) ---
-        async function fetchAllSuppliersFlat() {
-            const div = document.getElementById('all-suppliers');
-            div.innerHTML = "Loading...";
-            try {
-                const response = await fetch(`${SUPPLIER_API_BASE}/fetchAllSuppliers`);
-                const data = await response.json();
-                if (response.ok && Array.isArray(data.suppliers)) {
-                    if (data.suppliers.length === 0) {
-                        div.innerHTML = '<div class="empty-msg">No suppliers found.</div>';
-                        return;
-                    }
-                    let html = `<table>
-                        <thead>
-                            <tr>
-                                <th>Supplier ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                    for (const s of data.suppliers) {
-                        html += `<tr>
-                            <td>${s.supplier_id}</td>
-                            <td>${s.name}</td>
-                            <td>${s.email}</td>
-                        </tr>`;
-                    }
-                    html += `</tbody></table>`;
-                    div.innerHTML = html;
-                } else {
-                    div.innerHTML = '<div class="empty-msg">Failed to load suppliers.</div>';
-                }
-            } catch (error) {
-                div.innerHTML = `<div class="empty-msg">Network error. Try again. (${error.message})</div>`;
-            }
-        }
-
-        // --- Fetch All Products (Flat List) ---
-        async function fetchAllProductsFlat() {
-            const div = document.getElementById('all-products');
-            div.innerHTML = "Loading...";
-            try {
-                const response = await fetch(`${PRODUCT_API_BASE}/fetchAllProducts`);
-                const data = await response.json();
-                if (response.ok && Array.isArray(data.products)) {
-                    if (data.products.length === 0) {
-                        div.innerHTML = '<div class="empty-msg">No products found.</div>';
-                        return;
-                    }
-                    let html = `<table>
-                        <thead>
-                            <tr>
-                                <th>SKU</th>
-                                <th>Name</th>
-                                <th>Price</th>
-                                <th>Inventory</th>
-                                <th>Brand</th>
-                                <th>Supplier</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                    for (const p of data.products) {
-                        html += `<tr>
-                            <td>${p.sku}</td>
-                            <td>${p.name}</td>
-                            <td>${p.price}</td>
-                            <td>${p.inventory}</td>
-                            <td>${p.brand}</td>
-                            <td>${p.supplier_id || p.owned_by_name || ""}</td>
-                        </tr>`;
-                    }
-                    html += `</tbody></table>`;
-                    div.innerHTML = html;
-                } else {
-                    div.innerHTML = '<div class="empty-msg">Failed to load products.</div>';
-                }
-            } catch (error) {
-                div.innerHTML = `<div class="empty-msg">Network error. Try again. (${error.message})</div>`;
-            }
-        }
-
-        // --- Fetch All Suppliers with Products (Grouped) ---
-        async function fetchAllSuppliersWithProducts() {
-            const suppliersDiv = document.getElementById('suppliers');
-            suppliersDiv.innerHTML = "Loading...";
-            try {
-                const response = await fetch(`${SUPPLIER_API_BASE}/fetchAllSuppliersWithProducts`);
-                const data = await response.json();
-                if (response.ok && Array.isArray(data.suppliers)) {
-                    if (data.suppliers.length === 0) {
-                        suppliersDiv.innerHTML = '<div class="empty-msg">No suppliers found.</div>';
-                        return;
-                    }
-                    let html = `<table>
-                        <thead>
-                            <tr>
-                                <th>Supplier ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Products</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                    for (const s of data.suppliers) {
-                        html += `<tr>
-                            <td>${s.supplier_id}</td>
-                            <td>${s.name}</td>
-                            <td>${s.email}</td>
-                            <td>
-                                ${
-                                    s.products && s.products.length > 0
-                                    ? `<table class="products-table">
-                                        <thead>
-                                            <tr>
-                                                <th>SKU</th>
-                                                <th>Name</th>
-                                                <th>Price</th>
-                                                <th>Inventory</th>
-                                                <th>Brand</th>
-                                                <th>Notify</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${s.products.map(p => `
-                                                <tr>
-                                                    <td>${p.sku}</td>
-                                                    <td>${p.name}</td>
-                                                    <td>${p.price}</td>
-                                                    <td>${p.inventory}</td>
-                                                    <td>${p.brand}</td>
-                                                    <td>
-                                                        <button class="action-btn" onclick="openModal('product', '${s.supplier_id}', '${p.sku}')">Notify</button>
-                                                    </td>
-                                                </tr>
-                                            `).join('')}
-                                        </tbody>
-                                    </table>`
-                                    : '<span class="empty-msg">No products</span>'
-                                }
-                            </td>
-                            <td>
-                                <div class="product-actions">
-                                    <button class="action-btn" onclick="openModal('feedback', '${s.supplier_id}')">Feedback</button>
-                                    <button class="action-btn" onclick="openModal('message', '${s.supplier_id}')">Message</button>
-                                </div>
-                            </td>
-                        </tr>`;
-                    }
-                    html += `</tbody></table>`;
-                    suppliersDiv.innerHTML = html;
-                } else {
-                    suppliersDiv.innerHTML = '<div class="empty-msg">Failed to load suppliers.</div>';
-                }
-            } catch (error) {
-                suppliersDiv.innerHTML = `<div class="empty-msg">Network error. Try again. (${error.message})</div>`;
-            }
-        }
-
-        // --- Modal Logic for Notify/Feedback/Message ---
-        let currentModalType = null;
-        let currentSupplierId = null;
-        let currentSku = null;
-
-        function openModal(type, supplierId, sku = null) {
-            currentModalType = type;
-            currentSupplierId = supplierId;
-            currentSku = sku;
-            const modal = document.getElementById('modal');
-            const modalFields = document.getElementById('modalFields');
-            const modalMessage = document.getElementById('modal-message');
-            modalMessage.textContent = "";
-            if (type === 'product') {
-                modalFields.innerHTML = `
-                    <h3>Notify Supplier for Product</h3>
-                    <input type="hidden" name="sku" value="${sku}">
-                    <label>Message:</label>
-                    <textarea name="message" rows="3" required></textarea>
-                `;
-            } else if (type === 'feedback') {
-                modalFields.innerHTML = `
-                    <h3>Send Feedback to Supplier</h3>
-                    <label>Feedback:</label>
-                    <textarea name="feedback" rows="3" required></textarea>
-                `;
-            } else if (type === 'message') {
-                modalFields.innerHTML = `
-                    <h3>Send Message to Supplier</h3>
-                    <label>Subject:</label>
-                    <input type="text" name="subject" required>
-                    <label>Message:</label>
-                    <textarea name="message" rows="3" required></textarea>
-                `;
-            }
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-
-        // --- Modal Form Submission ---
-        document.getElementById('modalForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const modalMessage = document.getElementById('modal-message');
-            modalMessage.textContent = "";
-            let url = "";
-            let payload = {};
-
-            if (currentModalType === 'product') {
-                url = `${SUPPLIER_API_BASE}/notifySupplierForProduct`;
-                payload = {
-                    sku: currentSku,
-                    message: this.message.value.trim()
-                };
-            } else if (currentModalType === 'feedback') {
-                url = `${SUPPLIER_API_BASE}/sendSupplierFeedback`;
-                payload = {
-                    supplierId: currentSupplierId,
-                    feedback: this.feedback.value.trim()
-                };
-            } else if (currentModalType === 'message') {
-                url = `${SUPPLIER_API_BASE}/sendSupplierMessage`;
-                payload = {
-                    supplierId: currentSupplierId,
-                    subject: this.subject.value.trim(),
-                    message: this.message.value.trim()
-                };
-            }
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-                if (response.ok && data.success) {
-                    modalMessage.style.color = "green";
-                    modalMessage.textContent = data.message || "Success!";
-                    setTimeout(closeModal, 1200);
-                } else {
-                    modalMessage.style.color = "red";
-                    modalMessage.textContent = data.message || "Error!";
-                }
-            } catch (error) {
-                modalMessage.style.color = "red";
-                modalMessage.textContent = `Network error. Please try again. (${error.message})`;
-            }
-        });
-
-        // --- Initial fetches ---
-        fetchSuppliersForDropdown();
-        fetchAllSuppliersWithProducts();
-        fetchAllSuppliersFlat();
-        fetchAllProductsFlat();
+      // Initial load
+      loadSuppliers();
+      fetchAllProducts();
     </script>
-</body>
+  </body>
 </html>

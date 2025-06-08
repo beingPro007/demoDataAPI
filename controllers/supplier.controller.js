@@ -1,7 +1,8 @@
-import { Product } from "../models/product.model.js";
+import Product from "../models/product.model.js";
 import Supplier from "../models/supplier.model.js";
 import sendEmail from "../utils/sendEmail.js";
 
+// 1. Fetch all suppliers with their products
 const fetchAllSuppliersWithProducts = async (req, res) => {
     try {
         const suppliers = await Supplier.find({});
@@ -29,6 +30,7 @@ const fetchAllSuppliersWithProducts = async (req, res) => {
     }
 };
 
+// 2. Add a new supplier
 const addSupplier = async (req, res) => {
     const { supplier_id, name, email } = req.body;
 
@@ -37,13 +39,13 @@ const addSupplier = async (req, res) => {
     }
 
     try {
-        const existingSupplier = await Supplier.findOne({ supplier_id });
+        const existingSupplier = await Supplier.findOne({ supplier_id: supplier_id.toUpperCase() });
         if (existingSupplier) {
             return res.status(409).json({ message: `Supplier with ID '${supplier_id}' already exists` });
         }
 
         const supplier = await Supplier.create({
-            supplier_id,
+            supplier_id: supplier_id.toUpperCase(),
             name,
             email
         });
@@ -57,12 +59,13 @@ const addSupplier = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error creating supplier", error: error.message });
     }
-}
+};
 
+// 3. Fetch all products for a supplier
 const fetchSupplierProducts = async (req, res) => {
     const { supplierId } = req.params;
     try {
-        const supplier = await Supplier.findOne({ supplier_id: supplierId });
+        const supplier = await Supplier.findOne({ supplier_id: supplierId.toUpperCase() });
         if (!supplier) {
             return res.status(404).json({ message: "Supplier not found" });
         }
@@ -87,6 +90,7 @@ const fetchSupplierProducts = async (req, res) => {
     }
 };
 
+// 4. Notify supplier for a product
 const notifySupplierForProduct = async (req, res) => {
     const { sku, message } = req.body;
     try {
@@ -101,11 +105,11 @@ const notifySupplierForProduct = async (req, res) => {
     }
 };
 
-// 2. General feedback to supplier
+// 5. Send feedback to supplier
 const sendSupplierFeedback = async (req, res) => {
     const { supplierId, feedback } = req.body;
     try {
-        const supplier = await Supplier.findOne({ supplier_id: supplierId });
+        const supplier = await Supplier.findOne({ supplier_id: supplierId.toUpperCase() });
         if (!supplier) {
             return res.status(404).json({ success: false, message: "Supplier not found" });
         }
@@ -116,11 +120,11 @@ const sendSupplierFeedback = async (req, res) => {
     }
 };
 
-// 3. General message to supplier
+// 6. Send a general message to supplier
 const sendSupplierMessage = async (req, res) => {
     const { supplierId, subject, message } = req.body;
     try {
-        const supplier = await Supplier.findOne({ supplier_id: supplierId });
+        const supplier = await Supplier.findOne({ supplier_id: supplierId.toUpperCase() });
         if (!supplier) {
             return res.status(404).json({ success: false, message: "Supplier not found" });
         }
@@ -131,4 +135,11 @@ const sendSupplierMessage = async (req, res) => {
     }
 };
 
-export { addSupplier, notifySupplierForProduct, fetchSupplierProducts, fetchAllSuppliersWithProducts, sendSupplierFeedback, sendSupplierMessage };
+export {
+    addSupplier,
+    notifySupplierForProduct,
+    fetchSupplierProducts,
+    fetchAllSuppliersWithProducts,
+    sendSupplierFeedback,
+    sendSupplierMessage
+};
