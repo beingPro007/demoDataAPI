@@ -28,16 +28,14 @@ const raiseTicket = asynchandler(async (req, res) => {
     const userId = user._id;
 
     // 2) Validate the order exists and belongs to the user
-    const order = await Order.findOne({ orderId: orderId, userId });
+    const order = await Order.findOne({ orderID: orderId, userId });
     if (!order) {
         return res.status(404).json({ message: "Order not found for this user" });
-    }
-
-    // Optional: extract product info from order
-    const products = order.items || [];
+    }   
 
     // 3) Create the ticket
     const ticket = await Ticket.create({
+        sku: order.sku,
         userId,
         orderId,
         issue: issue.trim(),
@@ -47,11 +45,11 @@ const raiseTicket = asynchandler(async (req, res) => {
     // 4) Respond with the new ticket
     res.status(201).json({
         ticketId: ticket._id,
+        productName: order.prodName,
         userId: ticket.userId,
         orderId: ticket.orderId,
         issue: ticket.issue,
         status: ticket.status,
-        products, // optional: include order items in the response
         createdAt: ticket.createdAt,
     });
 });
