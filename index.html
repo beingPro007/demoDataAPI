@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Supplier & Product Management</title>
     <style>
-      /* Your existing CSS styles remain unchanged */
       body {
         font-family: Arial, sans-serif;
         background: #f4f6f8;
@@ -31,8 +30,7 @@
         color: #333;
       }
       form input,
-      form select,
-      form textarea {
+      form select {
         width: 100%;
         padding: 0.7em;
         border: 1px solid #ccc;
@@ -40,8 +38,7 @@
         font-size: 1em;
         margin-bottom: 0.5em;
       }
-      button[type="submit"],
-      .action-btn {
+      button[type="submit"] {
         margin-top: 1em;
         background: #1976d2;
         color: #fff;
@@ -52,18 +49,17 @@
         cursor: pointer;
         transition: background 0.2s;
       }
-      button[type="submit"]:hover,
-      .action-btn:hover {
+      button[type="submit"]:hover {
         background: #1565c0;
       }
       .section {
-        margin-top: 2em;
+        margin-top: 2.5em;
       }
       table {
         width: 100%;
         border-collapse: collapse;
         background: #fafbfc;
-        margin-bottom: 2em;
+        margin-top: 1em;
       }
       th,
       td {
@@ -79,10 +75,6 @@
         text-align: center;
         color: #888;
         padding: 1em 0;
-      }
-      .products-table {
-        margin: 0.5em 0 1em 0;
-        background: #f8fafd;
       }
     </style>
   </head>
@@ -164,11 +156,29 @@
         <h3>All Products</h3>
         <div id="all-products"></div>
       </div>
-    </div>
+
+      <!-- Order Fetch -->
+      <div class="section">
+        <h3>Fetch Orders by Phone Number</h3>
+        <form id="orderForm">
+          <label for="orderPhoneNumber">Phone Number:</label>
+          <input
+            type="tel"
+            id="orderPhoneNumber"
+            name="orderPhoneNumber"
+            required
+            pattern="[\d+\-\s()]{7,20}"
+          />
+          <button type="submit">Fetch Orders</button>
+        </form>
+        <div id="order-message"></div>
+        <div id="order-results"></div>
+      </div>
 
     <script>
       const PRODUCT_API = "http://localhost:3000/api/v1/product";
       const SUPPLIER_API = "http://localhost:3000/api/v1/supplier";
+      const ORDER_API = "http://localhost:3000/api/v1/order";
 
       // Populate supplier dropdown
       async function loadSuppliers() {
@@ -196,6 +206,7 @@
           const name = document.getElementById("name").value;
           const email = document.getElementById("email").value;
           const messageDiv = document.getElementById("supplier-message");
+
           try {
             const res = await fetch(`${SUPPLIER_API}/addSupplier`, {
               method: "POST",
@@ -224,7 +235,6 @@
         .getElementById("productForm")
         .addEventListener("submit", async function (e) {
           e.preventDefault();
-
           const sku = document.getElementById("sku").value.trim();
           const name = document.getElementById("productName").value.trim();
           const price = parseFloat(document.getElementById("price").value);
@@ -235,11 +245,7 @@
             .getElementById("brandPhoneNumber")
             .value.trim();
           const owned_by = document.getElementById("owned_by").value;
-
-          console.log("Name of the product", name);
-
           const messageDiv = document.getElementById("product-message");
-          messageDiv.textContent = "";
 
           try {
             const response = await fetch(`${PRODUCT_API}/addProduct`, {
@@ -254,12 +260,12 @@
                 owned_by,
               }),
             });
-
             const data = await response.json();
             if (response.ok) {
               messageDiv.style.color = "green";
               messageDiv.textContent = `Product "${name}" added successfully!`;
               this.reset();
+              fetchAllProducts();
             } else {
               messageDiv.style.color = "red";
               messageDiv.textContent = data.message || "Error adding product.";
@@ -269,6 +275,7 @@
             messageDiv.textContent = `Network error: ${err.message}`;
           }
         });
+
       // Fetch all products
       async function fetchAllProducts() {
         const div = document.getElementById("all-products");
@@ -276,33 +283,30 @@
         try {
           const res = await fetch(`${PRODUCT_API}/fetchAllProducts`);
           const data = await res.json();
-
           if (Array.isArray(data.products) && data.products.length > 0) {
             let html = `<table><thead>
-        <tr>
-          <th>SKU</th>
-          <th>Name</th>
-          <th>Price</th>
-          <th>Inventory</th>
-          <th>Brand Phone</th>
-          <th>Supplier</th>
-        </tr>
-      </thead><tbody>`;
+              <tr>
+                <th>SKU</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Inventory</th>
+                <th>Brand Phone</th>
+                <th>Supplier</th>
+              </tr>
+            </thead><tbody>`;
 
             for (const p of data.products) {
-              console.log("product", p);
-
               html += `<tr>
-          <td>${p.sku}</td>
-          <td>${p.name}</td>
-          <td>$${p.price.toFixed(2)}</td>
-          <td>${p.inventory}</td>
-          <td>${p.brandPhoneNumber || ""}</td>
-          <td>${p.owned_by_supplier ? p.owned_by_supplier.supplier_id : "N/A"}</td>
-        </tr>`;
+                <td>${p.sku}</td>
+                <td>${p.name}</td>
+                <td>$${p.price.toFixed(2)}</td>
+                <td>${p.inventory}</td>
+                <td>${p.brandPhoneNumber || ""}</td>
+                <td>${p.owned_by_supplier ? p.owned_by_supplier.supplier_id : "N/A"}</td>
+              </tr>`;
             }
 
-            html += `</tbody></table>`;
+            html += "</tbody></table>";
             div.innerHTML = html;
           } else {
             div.innerHTML = `<p class="empty-msg">No products found.</p>`;
@@ -311,6 +315,56 @@
           div.innerHTML = `<p style="color:red;">Error loading products: ${err.message}</p>`;
         }
       }
+      // Fetch products by brand phone number
+      // Fetch Orders by Phone Number
+      document
+        .getElementById("orderForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          console.log("Order form submitted"); 
+          const phone = document
+            .getElementById("orderPhoneNumber")
+            .value.trim()
+            .replace(/[\s()-]/g, "");
+          const resultDiv = document.getElementById("order-results");
+          resultDiv.innerHTML = "Loading...";
+          try {
+            const res = await fetch(
+              `${ORDER_API}/fetchOrder?phoneNumber=${phone}`
+            );
+            const data = await res.json();
+            console.log("Data is: ", data);
+
+            if (data && Array.isArray(data.orders) && data.orders.length > 0) {
+              let html = `
+        <p><strong>Phone Number:</strong> ${data.phoneNumber || phone}</p>
+        <p><strong>Total Orders:</strong> ${data.totalOrders || data.orders.length}</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>SKU</th>
+              <th>Product Name</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+              for (const o of data.orders) {
+                html += `<tr>
+          <td>${o.orderID || ""}</td>
+          <td>${o.sku || ""}</td>
+          <td>${o.prodName || ""}</td>
+        </tr>`;
+              }
+              html += "</tbody></table>";
+              resultDiv.innerHTML = html;
+            } else {
+              resultDiv.innerHTML = `<p class="empty-msg">No orders found for this phone number.</p>`;
+            }
+          } catch (err) {
+            resultDiv.innerHTML = `<p style="color:red;">Error fetching orders: ${err.message}</p>`;
+          }
+        });
 
       // Initial load
       loadSuppliers();

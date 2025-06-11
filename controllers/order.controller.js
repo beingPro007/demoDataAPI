@@ -1,6 +1,8 @@
 import { Order } from "../models/order.model.js";
 import Product from "../models/product.model.js";
+import Supplier from "../models/supplier.model.js";
 import User from "../models/user.model.js";
+import { ApiError } from "../utils/ApiError.js";
 import { asynchandler } from "../utils/asynchandler.js";
 import sendEmail from "../utils/sendEmail.js";
 /**
@@ -16,18 +18,30 @@ const fetchOrdersByPhone = asynchandler(async (req, res) => {
         return res.status(400).json({ message: "Phone number is required" });
     }
     const normalizedPhone = phoneNumber.replace(/\D/g, '');
+    console.log("Normalized Number", normalizedPhone);
+    
 
     // Find user by phoneNumber
     const user = await User.findOne({
         phoneNumber: { $regex: new RegExp(normalizedPhone + '$') } // ends with normalizedPhone
-    });      
+    });
 
     if (!user) {
         return res.status(404).json({ message: "User not found" });
     }
 
+    
     // Fetch all orders by user._id
     const orders = await Order.find({ userId: user._id });
+    
+    // const supplierOwn = await Product.findOne({
+    //     sku: orders.orders.sku
+    // })
+    // if (!supplierOwn) {
+    //     console.log("Supplier own not found");
+    //     return;
+    // }
+    // console.log("Supplier found", supplierOwn.owned_by_supplier);
 
     res.status(200).json({
         phoneNumber: user.phoneNumber,
@@ -50,7 +64,7 @@ const getOrderStatusByPhone = asynchandler(async (req, res) => {
     // Find user by phoneNumber
     const user = await User.findOne({
         phoneNumber: { $regex: new RegExp(normalizedPhone + '$') } // ends with normalizedPhone
-    });      
+    });
 
     console.log("User data is:", user);
 
@@ -58,7 +72,7 @@ const getOrderStatusByPhone = asynchandler(async (req, res) => {
         return res.status(404).json({ message: "User not found" });
     }
     console.log("User and orderID is: ", user, orderId);
-    
+
 
     // Find order belonging to the user by product name (case-insensitive)
     const order = await Order.findOne({
@@ -77,9 +91,9 @@ const getOrderStatusByPhone = asynchandler(async (req, res) => {
         lastUpdated: order.updatedAt,
     });
 });
-  
+
 const addOrder = asynchandler(async (req, res) => {
-    const { phoneNumber, sku, quantity, shippingAddress } = req.body;
+    const { phoneNumber, sku, quantity, shippingAddress, expectedDeliveryDate } = req.body;
 
     if (!phoneNumber || !sku || !quantity || !shippingAddress) {
         return res.status(400).json({ message: "phoneNumber, sku, quantity, and shippingAddress are required" });
@@ -92,7 +106,7 @@ const addOrder = asynchandler(async (req, res) => {
     }
 
     // Find product by SKU
-    const product = await Product.findOne({ sku: sku.toUpperCase() });
+    const product = await Product.findOne({ sku: sku.toUpperCase() }).populate("owned_by_supplier");;
     if (!product) {
         return res.status(404).json({ message: "Product with given SKU not found" });
     }
@@ -104,6 +118,8 @@ const addOrder = asynchandler(async (req, res) => {
         quantity,
         shippingAddress,
         userId: user._id,
+        expectedDeliveryDate: expectedDeliveryDate,
+        owned_by_supplier: product.owned_by_supplier
     });
 
     if (!order) {
@@ -125,6 +141,15 @@ const fetchOrdersByBrand = asynchandler(async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     if (user.role !== "Brand") return res.status(403).json({ message: "Access denied: Not a brand" });
 
+    const supplierOwn = await Product.findOne({
+        sku: sku
+    })
+    if(!supplierOwn){
+        console.log("Supplier own not found");
+        return;
+    }
+    console.log("Supplier found", supplierOwn);
+    
     // Find orders for this brand's products
     const orders = await Order.find({ brandId: user._id }).populate("products");
 
@@ -166,7 +191,60 @@ const updateShippingAddress = asynchandler(async (req, res) => {
     res.status(200).json({ message: "Shipping address updated successfully", order });
 });
 
-  
+
+const lateOrders = asynchandler(async (req, res) => {
+    const { brandPhoneNumber } = req.query;
+    console.log("Phone number is:", brandPhoneNumber);
+
+    if (!brandPhoneNumber) {
+        return res.status(400).json({ message: "Phone number is required" });
+    }
+
+    // Normalize the phone number
+    const normalizedPhone = brandPhoneNumber.replace(/\D/g, '');
+    console.log("Normalized Phone Number:", normalizedPhone);
+
+    // Find user by phone number
+    const user = await User.findOne({
+        phoneNumber: { $regex: new RegExp(normalizedPhone + '$') } // ends with normalizedPhone
+    });
+
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    // Get current date
+    const now = new Date();
+
+    // Find late orders
+    const orders = await Order.find({
+        userId: user._id,
+        expectedDeliveryDate: { $lt: now }
+    });
+
+    console.log("Late orders:", orders);
+
+    // Extract SKUs from orders
+    const skus = orders.map(order => order.sku);
+
+    // Find products by SKUs and populate supplier info
+    const products = await Product.find({ sku: { $in: skus } }).populate('owned_by_supplier');
+    console.log("Products are: ", products);
+    
+    const supplierPhoneNumbers = [...new Set(
+        products
+            .map(product => product.owned_by_supplier?.phoneNumber)
+            .filter(Boolean)
+    )];
+
+    res.status(200).json({
+        supplierName: user.name,
+        totalOrders: orders.length,
+        orders,
+        supplierPhoneNumbers,
+    });
+});
+
 const cancelOrder = asynchandler(async (req, res) => {
     const { phoneNumber, sku } = req.body;
 
@@ -183,7 +261,7 @@ const cancelOrder = asynchandler(async (req, res) => {
     const order = await Order.findOne({
         userId: user._id,
         sku: sku.toUpperCase(),
-        status: { $in: ["created", "shipped"] } // Only cancel if not already cancelled/delivered/refunded
+        status: { $in: ["created", "shipped"] }
     });
 
     if (!order) {
@@ -196,7 +274,7 @@ const cancelOrder = asynchandler(async (req, res) => {
 
     res.status(200).json({ message: "Order cancelled successfully", order });
 });
-  
+
 const refundOrder = asynchandler(async (req, res) => {
     const { phoneNumber, sku } = req.body;
 
@@ -220,7 +298,7 @@ const refundOrder = asynchandler(async (req, res) => {
     const order = await Order.findOne({
         userId: user._id,
         prodName: product.name,
-        status: { $ne: "refunded" }, 
+        status: { $ne: "refunded" },
     });
 
     if (!order) {
@@ -361,5 +439,6 @@ export {
     fetchOrdersByBrand,
     cancelOrder,
     refundOrder,
-    updateShippingAddress
+    updateShippingAddress,
+    lateOrders
 };

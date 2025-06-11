@@ -25,6 +25,12 @@ const supplierSchema = new Schema(
                 "Please fill a valid email address",
             ],
         },
+        phoneNumber: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+        },
         products: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     },
     {

@@ -19,16 +19,16 @@ const orderSchema = new Schema({
         enum: ["created", "shipped", "cancelled", "refunded", "delivered"],
         default: "created",
     },
+    owned_by_supplier: {
+        type: Schema.Types.ObjectId,
+        ref: "Supplier",
+        required: true,
+    },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     expectedDeliveryDate: {
         type: Date,
-        default: () => {
-            const daysToAdd = Math.floor(Math.random() * 2) + 6;
-            const date = new Date();
-            date.setDate(date.getDate() + daysToAdd);
-            return date;
-        },
-    },
+        required: true,
+    },    
 });
 
 export const Order = mongoose.model("Order", orderSchema);

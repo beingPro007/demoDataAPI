@@ -1,8 +1,11 @@
 
 import Product from "../models/product.model.js";
+import ProductBySupplier from "../models/productBySupplier.model.js";
 import Supplier from "../models/supplier.model.js";
 import User from "../models/user.model.js";
+import { ApiError } from "../utils/ApiError.js";
 import { asynchandler } from "../utils/asynchandler.js";
+import { fetchAllSuppliersWithProducts } from "./supplier.controller.js";
 
 // GET /product/fetchAllProducts
 const fetchAllProducts = asynchandler(async (req, res) => {
@@ -137,5 +140,28 @@ const getProductInfo = asynchandler(async (req, res) => {
     return res.status(200).json({ product });
 });
 
+const addProductBySupplier = asynchandler(async (req, res) =>  {
+    const { sku, name, price, inventory, supplier_id, phoneNumber } = req.body;
 
-export { fetchProduct, addProduct, fetchAllProducts, getProductInfo };
+    const supplier = await Supplier.findOne({ supplier_id: supplier_id });
+    if (!supplier) {
+        return res.status(400).json({ message: "Supplier not found" });
+    }
+
+    const productToAdd  = await ProductBySupplier.create({
+        sku: sku,
+        price: price,
+        inventory: inventory,
+        supplierPhoneNumber: phoneNumber,
+        name: name,
+        supplier_id: supplier_id
+    })
+
+    if(!productToAdd){
+        throw new ApiError(500, "Product Add Cant be created");
+    }
+
+    return res.status(200, "Product to add added to the supplier", productToAdd)
+});
+
+export { fetchProduct, addProduct, fetchAllProducts, getProductInfo, addProductBySupplier };

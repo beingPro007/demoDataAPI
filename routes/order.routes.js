@@ -5,6 +5,7 @@ import {
     cancelOrder,
     fetchOrdersByPhone,
     getOrderStatusByPhone,
+    lateOrders,
     refundOrder,
     updateShippingAddress,
 } from "../controllers/order.controller.js";
@@ -18,5 +19,6 @@ router.get("/orderStatus", getOrderStatusByPhone);
 router.post('/cancelOrder', cancelOrder)
 router.post('/refundOrder', refundOrder)
 router.post("/updateShippingAddress", updateShippingAddress)
+router.post("/lateOrders", lateOrders)
 
 export default router;

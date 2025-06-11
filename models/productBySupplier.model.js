@@ -8,7 +8,7 @@ const productSchema = new Schema(
             unique: true,
             trim: true,
             uppercase: true,
-            match: /^SKU\d{3}$/, // e.g., SKU123
+            match: /^SKU\d{3}$/,
         },
         name: {
             type: String,
@@ -26,28 +26,24 @@ const productSchema = new Schema(
             min: 0,
             default: 0,
         },
-        brandPhoneNumber: {
+        supplierPhoneNumber: {
             type: String,
             required: true,
             trim: true,
-            match: /^[\d+\-\s()]{7,20}$/
+            match: /^[\d+\-\s()]{7,20}$/,
         },
-        brandOwner: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
+        supplier_id: {
+            type: String,
             required: true,
-        },
-        owned_by_supplier: {
-            type: Schema.Types.ObjectId,
-            ref: "Supplier",
-            required: true,
-        },
+            trim: true,
+            uppercase: true,
+        },   
     },
     {
         timestamps: true,
     }
 );
 
-const Product = mongoose.model("Product", productSchema);
+const ProductBySupplier = mongoose.model("ProductBySupplier", productSchema);
 
-export default Product;
+export default ProductBySupplier;

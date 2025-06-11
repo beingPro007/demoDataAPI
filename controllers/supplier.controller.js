@@ -20,7 +20,8 @@ const fetchAllSuppliersWithProducts = async (req, res) => {
                         price: p.price,
                         inventory: p.inventory,
                         brand: p.brand
-                    }))
+                    })),
+                    supplierPhoneNumber: supplier.phoneNumber
                 };
             })
         );
@@ -32,10 +33,10 @@ const fetchAllSuppliersWithProducts = async (req, res) => {
 
 // 2. Add a new supplier
 const addSupplier = async (req, res) => {
-    const { supplier_id, name, email } = req.body;
+    const { supplier_id, name, email, phoneNumber } = req.body;
 
-    if (!supplier_id || !name || !email) {
-        return res.status(400).json({ message: "Supplier ID, name, and email are required" });
+    if (!supplier_id || !name || !email || !phoneNumber) {
+        return res.status(400).json({ message: "Supplier ID, name, phoneNumber and email are required" });
     }
 
     try {
@@ -47,13 +48,15 @@ const addSupplier = async (req, res) => {
         const supplier = await Supplier.create({
             supplier_id: supplier_id.toUpperCase(),
             name,
-            email
+            email,
+            phoneNumber
         });
 
         res.status(201).json({
             id: supplier._id,
             supplier_id: supplier.supplier_id,
             name: supplier.name,
+            phoneNumber: phoneNumber,
             email: supplier.email
         });
     } catch (error) {
