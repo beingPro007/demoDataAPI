@@ -1,7 +1,12 @@
 import mongoose, { Schema } from "mongoose";
 
 const ticketSchema = new Schema({
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    supplier_id: {
+        type: String,
+        required: true,
+        trim: true,
+        uppercase: true
+    },
     sku: { type: String, required: true },
     issue: { type: String, required: true },
     status: {

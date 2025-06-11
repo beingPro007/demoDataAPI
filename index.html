@@ -206,11 +206,79 @@
     </div>
   </div>
 
+  <!-- Support Tickets Section -->
+  <div class="section">
+    <h3>Fetch Support Tickets</h3>
+    <form id="ticketForm">
+      <label for="supplierTicketId">Supplier ID:</label>
+      <input type="text" id="supplierTicketId" name="supplierTicketId"
+        required maxlength="12" placeholder="e.g. SUP010" />
+      <button type="submit">Fetch Tickets</button>
+    </form>
+    <div id="ticket-message"></div>
+    <div id="ticket-results"></div>
+  </div>
+
+
+
   <script>
-    const PRODUCT_API  = "http://localhost:3000/api/v1/product";
-    const SUPPLIER_API = "http://localhost:3000/api/v1/supplier";
-    const ORDER_API    = "http://localhost:3000/api/v1/order";
+    const PRODUCT_API  = "http://37.27.241.172:3000/api/v1/product";
+    const SUPPLIER_API = "http://37.27.241.172:3000/api/v1/supplier";
+    const ORDER_API    = "http://37.27.241.172:3000/api/v1/order";
     const CALL_API     = "http://37.27.241.172:8000/start_call";
+
+    // --- Fetch Support Tickets by Supplier ID ---
+    document.getElementById("ticketForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const supplierId = e.target.supplierTicketId.value.trim().toUpperCase();
+      const msg = document.getElementById("ticket-message");
+      const out = document.getElementById("ticket-results");
+
+      msg.textContent = '';
+      out.innerHTML = 'Loading...';
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/v1/ticket/fetchSupTickets`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ supplier_id: supplierId })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || response.statusText);
+
+        const tickets = data.tickets || [];
+        if (!tickets.length) {
+          out.innerHTML = `<p class="empty-msg">No support tickets found for supplier ID <strong>${supplierId}</strong>.</p>`;
+          return;
+        }
+
+        let html = `<p><strong>Supplier ID:</strong> ${data.supplier_id}</p>
+        <p><strong>Total Tickets:</strong> ${tickets.length}</p>
+        <table><thead>
+          <tr>
+            <th>Ticket ID</th><th>SKU</th><th>Issue</th><th>Status</th><th>Created At</th>
+          </tr></thead><tbody>`;
+
+        tickets.forEach(t => {
+          html += `<tr>
+            <td>${t._id}</td>
+            <td>${t.sku}</td>
+            <td>${t.issue}</td>
+            <td>${t.status}</td>
+            <td>${new Date(t.createdAt).toLocaleString()}</td>
+          </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        out.innerHTML = html;
+
+      } catch (err) {
+        msg.style.color = 'red';
+        msg.textContent = `✖ ${err.message}`;
+        out.innerHTML = '';
+      }
+    });
 
     // Utility to render call-card for a single number
     function renderCallCard(container, supplierName, phoneNumber) {
@@ -399,7 +467,7 @@
       const resDiv = document.getElementById("late-order-results");
       resDiv.innerHTML = 'Loading…';
       try {
-        const url = `http://localhost:3000/api/v1/order/lateOrders?brandPhoneNumber=${encodeURIComponent(phone)}`;
+        const url = `http://37.27.241.172:3000/api/v1/order/lateOrders?brandPhoneNumber=${encodeURIComponent(phone)}`;
         const r = await fetch(url, {
           method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({})
         });
