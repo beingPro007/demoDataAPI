@@ -4,7 +4,7 @@ const generateOrderId = () => {
     return Math.floor(Math.random() * 1000).toString().padStart(3, '0');
 };
 const orderSchema = new Schema({
-    sku: { type: String, required: true, unique: true, uppercase: true },
+    sku: { type: String, required: true, uppercase: true },
     prodName: { type: String, required: true },
     orderID: {
         type: String,
