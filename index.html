@@ -1,374 +1,449 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Supplier & Product Management</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #f4f6f8;
-        margin: 0;
-        padding: 0;
-      }
-      .container {
-        max-width: 1200px;
-        margin: 40px auto 20px auto;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-        padding: 2em;
-      }
-      h2,
-      h3 {
-        text-align: center;
-        margin-bottom: 1em;
-      }
-      form label {
-        display: block;
-        margin-top: 1em;
-        margin-bottom: 0.3em;
-        color: #333;
-      }
-      form input,
-      form select {
-        width: 100%;
-        padding: 0.7em;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 1em;
-        margin-bottom: 0.5em;
-      }
-      button[type="submit"] {
-        margin-top: 1em;
-        background: #1976d2;
-        color: #fff;
-        border: none;
-        padding: 0.7em 1.2em;
-        border-radius: 4px;
-        font-size: 1em;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      button[type="submit"]:hover {
-        background: #1565c0;
-      }
-      .section {
-        margin-top: 2.5em;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background: #fafbfc;
-        margin-top: 1em;
-      }
-      th,
-      td {
-        border: 1px solid #e0e0e0;
-        padding: 0.6em 0.4em;
-        text-align: center;
-      }
-      th {
-        background: #e3eaf6;
-        color: #333;
-      }
-      .empty-msg {
-        text-align: center;
-        color: #888;
-        padding: 1em 0;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h2>Supplier & Product Management</h2>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Supplier & Product Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 40px auto 20px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      padding: 2em;
+    }
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 1em;
+    }
+    form label {
+      display: block;
+      margin-top: 1em;
+      margin-bottom: 0.3em;
+      color: #333;
+    }
+    form input, form select {
+      width: 100%;
+      padding: 0.7em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1em;
+      margin-bottom: 0.5em;
+      box-sizing: border-box;
+    }
+    button, button[type="submit"] {
+      margin-top: 1em;
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      padding: 0.7em 1.2em;
+      border-radius: 4px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover, button[type="submit"]:hover {
+      background: #1565c0;
+    }
+    .section {
+      margin-top: 2.5em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fafbfc;
+      margin-top: 1em;
+    }
+    th, td {
+      border: 1px solid #e0e0e0;
+      padding: 0.6em 0.4em;
+      text-align: center;
+    }
+    th {
+      background: #e3eaf6;
+      color: #333;
+    }
+    .empty-msg {
+      text-align: center;
+      color: #888;
+      padding: 1em 0;
+    }
 
-      <!-- Supplier Form -->
-      <form id="supplierForm">
-        <label for="supplier_id">Supplier ID:</label>
-        <input
-          type="text"
-          id="supplier_id"
-          name="supplier_id"
-          required
-          maxlength="12"
-        />
+    /* ---- Call Card Styles ---- */
+    .call-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.2rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin: 1em 0;
+      max-width: 400px;
+    }
+    .call-card h4 {
+      margin: 0 0 0.8rem;
+      font-size: 1.1rem;
+    }
+    .call-card .form-group {
+      margin-bottom: 0.8rem;
+    }
+    .call-card label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+    }
+    .call-card input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+    }
+    .call-card button {
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 1rem;
+      background: #28a745;
+    }
+    .call-card button:hover {
+      background: #218838;
+    }
+    .call-response {
+      margin-top: 0.8rem;
+      padding: 0.8rem;
+      border-radius: 4px;
+      display: none;
+      font-size: 0.9rem;
+    }
+    .call-response.success {
+      background: #e6ffed;
+      border: 1px solid #a3d9a5;
+      color: #2d6a2d;
+    }
+    .call-response.error {
+      background: #ffe6e6;
+      border: 1px solid #d9a3a3;
+      color: #6a2d2d;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Supplier & Product Management</h2>
 
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required />
+    <!-- Supplier Form -->
+    <form id="supplierForm">
+      <label for="supplier_id">Supplier ID:</label>
+      <input type="text" id="supplier_id" name="supplier_id" required maxlength="12" />
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required />
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required />
+      <button type="submit">Add Supplier</button>
+    </form>
+    <div id="supplier-message"></div>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required />
-
-        <button type="submit">Add Supplier</button>
+    <!-- Product Form -->
+    <div class="section">
+      <h3>Add Product</h3>
+      <form id="productForm">
+        <label for="sku">SKU:</label>
+        <input type="text" id="sku" name="sku" required maxlength="10" />
+        <label for="productName">Product Name:</label>
+        <input type="text" id="productName" name="name" required />
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" step="0.01" min="0" required />
+        <label for="inventory">Inventory:</label>
+        <input type="number" id="inventory" name="inventory" min="0" required />
+        <label for="brandPhoneNumber">Brand Phone Number:</label>
+        <input type="tel" id="brandPhoneNumber" name="brandPhoneNumber" required pattern="[\d+\-\s()]{7,20}" />
+        <label for="owned_by">Supplier:</label>
+        <select id="owned_by" name="owned_by" required>
+          <option value="">Select Supplier</option>
+        </select>
+        <button type="submit">Add Product</button>
       </form>
-      <div id="supplier-message"></div>
+      <div id="product-message"></div>
+    </div>
 
-      <!-- Product Form -->
-      <div class="section">
-        <h3>Add Product</h3>
-        <form id="productForm">
-          <label for="sku">SKU:</label>
-          <input type="text" id="sku" name="sku" required maxlength="10" />
+    <!-- Product List -->
+    <div class="section">
+      <h3>All Products</h3>
+      <div id="all-products"></div>
+    </div>
 
-          <label for="productName">Product Name:</label>
-          <input type="text" id="productName" name="name" required />
+    <!-- Order Fetch -->
+    <div class="section">
+      <h3>Fetch Orders by Phone Number</h3>
+      <form id="orderForm">
+        <label for="orderPhoneNumber">Phone Number:</label>
+        <input type="tel" id="orderPhoneNumber" name="orderPhoneNumber"
+               required pattern="[\d+\-\s()]{7,20}" />
+        <button type="submit">Fetch Orders</button>
+      </form>
+      <div id="order-message"></div>
+      <div id="order-results"></div>
+    </div>
 
-          <label for="price">Price:</label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            step="0.01"
-            min="0"
-            required
-          />
+    <!-- Late Orders + Call Cards -->
+    <div class="section">
+      <h3>Fetch Late Orders & Start Call</h3>
+      <form id="lateOrderForm">
+        <label for="lateBrandPhoneNumber">Brand Phone Number:</label>
+        <input type="tel" id="lateBrandPhoneNumber" name="lateBrandPhoneNumber"
+          required pattern="[\d+\-\s()]{7,20}" placeholder="e.g. +91 96645 13886" />
+        <button type="submit">Fetch Late Orders</button>
+      </form>
+      <div id="late-order-message"></div>
+      <div id="late-order-results"></div>
+    </div>
+  </div>
 
-          <label for="inventory">Inventory:</label>
-          <input
-            type="number"
-            id="inventory"
-            name="inventory"
-            min="0"
-            required
-          />
+  <script>
+    const PRODUCT_API  = "http://localhost:3000/api/v1/product";
+    const SUPPLIER_API = "http://localhost:3000/api/v1/supplier";
+    const ORDER_API    = "http://localhost:3000/api/v1/order";
+    const CALL_API     = "http://37.27.241.172:8000/start_call";
 
-          <label for="brandPhoneNumber">Brand Phone Number:</label>
-          <input
-            type="tel"
-            id="brandPhoneNumber"
-            name="brandPhoneNumber"
-            required
-            pattern="[\d+\-\s()]{7,20}"
-          />
-
-          <label for="owned_by">Supplier:</label>
-          <select id="owned_by" name="owned_by" required>
-            <option value="">Select Supplier</option>
-          </select>
-
-          <button type="submit">Add Product</button>
+    // Utility to render call-card for a single number
+    function renderCallCard(container, supplierName, phoneNumber) {
+      const card = document.createElement('div');
+      card.className = 'call-card';
+      card.innerHTML = `
+        <h4>Call: ${supplierName}</h4>
+        <form>
+          <div class="form-group">
+            <label>Room Name</label>
+            <input type="text" name="room" value="${supplierName}" required />
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" name="phone_number" value="${phoneNumber}"
+                   required />
+          </div>
+          <button type="submit">Start Call</button>
         </form>
-        <div id="product-message"></div>
-      </div>
+        <div class="call-response"></div>
+      `;
+      // attach handler
+      card.querySelector('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const respEl = card.querySelector('.call-response');
+        const btn = e.target.querySelector('button');
+        respEl.style.display = 'none'; respEl.className = 'call-response';
+        btn.disabled = true;
 
-      <!-- Product List -->
-      <div class="section">
-        <h3>All Products</h3>
-        <div id="all-products"></div>
-      </div>
+        const payload = {
+          room: e.target.room.value.trim(),
+          phone_number: e.target.phone_number.value.trim()
+        };
 
-      <!-- Order Fetch -->
-      <div class="section">
-        <h3>Fetch Orders by Phone Number</h3>
-        <form id="orderForm">
-          <label for="orderPhoneNumber">Phone Number:</label>
-          <input
-            type="tel"
-            id="orderPhoneNumber"
-            name="orderPhoneNumber"
-            required
-            pattern="[\d+\-\s()]{7,20}"
-          />
-          <button type="submit">Fetch Orders</button>
-        </form>
-        <div id="order-message"></div>
-        <div id="order-results"></div>
-      </div>
-
-    <script>
-      const PRODUCT_API = "http://localhost:3000/api/v1/product";
-      const SUPPLIER_API = "http://localhost:3000/api/v1/supplier";
-      const ORDER_API = "http://localhost:3000/api/v1/order";
-
-      // Populate supplier dropdown
-      async function loadSuppliers() {
-        const select = document.getElementById("owned_by");
-        select.innerHTML = `<option value="">Select Supplier</option>`;
         try {
-          const res = await fetch(`${SUPPLIER_API}/fetchAllSuppliers`);
-          const data = await res.json();
-          if (Array.isArray(data.suppliers)) {
-            for (const supplier of data.suppliers) {
-              select.innerHTML += `<option value="${supplier.id}">${supplier.supplier_id} - ${supplier.name}</option>`;
-            }
-          }
+          const r = await fetch(CALL_API, {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const json = await r.json();
+          if (!r.ok) throw new Error(json.error || r.statusText);
+
+          respEl.classList.add('success');
+          respEl.textContent = `✅ Call started: ${JSON.stringify(json)}`;
         } catch (err) {
-          console.error("Error loading suppliers:", err);
+          respEl.classList.add('error');
+          respEl.textContent = `❌ Failed: ${err.message}`;
+        } finally {
+          respEl.style.display = 'block';
+          btn.disabled = false;
         }
+      });
+
+      container.appendChild(card);
+    }
+
+    // --- Load suppliers for product form ---
+    async function loadSuppliers() {
+      const select = document.getElementById("owned_by");
+      select.innerHTML = `<option value="">Select Supplier</option>`;
+      try {
+        const res = await fetch(`${SUPPLIER_API}/fetchAllSuppliers`);
+        const { suppliers } = await res.json();
+        suppliers.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = `${s.supplier_id} – ${s.name}`;
+          select.appendChild(opt);
+        });
+      } catch(e){ console.error(e); }
+    }
+
+    // --- Supplier Form ---
+    document.getElementById("supplierForm").addEventListener("submit", async e=>{
+      e.preventDefault();
+      const { supplier_id, name, email } = e.target;
+      const msg = document.getElementById("supplier-message");
+      try {
+        const r = await fetch(`${SUPPLIER_API}/addSupplier`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            supplier_id: supplier_id.value,
+            name: name.value,
+            email: email.value
+          })
+        });
+        const json = await r.json();
+        if (!r.ok) throw new Error(json.message||r.statusText);
+        msg.style.color='green'; msg.textContent='✔ Supplier added';
+        e.target.reset(); loadSuppliers();
+      } catch(err) {
+        msg.style.color='red'; msg.textContent=`✖ ${err.message}`;
       }
+    });
 
-      // Add Supplier
-      document
-        .getElementById("supplierForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-          const supplier_id = document.getElementById("supplier_id").value;
-          const name = document.getElementById("name").value;
-          const email = document.getElementById("email").value;
-          const messageDiv = document.getElementById("supplier-message");
-
-          try {
-            const res = await fetch(`${SUPPLIER_API}/addSupplier`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ supplier_id, name, email }),
-            });
-            const data = await res.json();
-            if (res.ok) {
-              messageDiv.style.color = "green";
-              messageDiv.textContent = `Supplier added successfully!`;
-              this.reset();
-              loadSuppliers();
-            } else {
-              messageDiv.style.color = "red";
-              messageDiv.textContent =
-                data.message || "Failed to add supplier.";
-            }
-          } catch (err) {
-            messageDiv.style.color = "red";
-            messageDiv.textContent = `Error: ${err.message}`;
-          }
+    // --- Product Form ---
+    document.getElementById("productForm").addEventListener("submit", async e=>{
+      e.preventDefault();
+      const f=e.target, msg=document.getElementById("product-message");
+      try {
+        const r = await fetch(`${PRODUCT_API}/addProduct`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            sku: f.sku.value.trim(),
+            name: f.name.value.trim(),
+            price: parseFloat(f.price.value),
+            inventory: parseInt(f.inventory.value),
+            brandPhoneNumber: f.brandPhoneNumber.value.trim(),
+            owned_by: f.owned_by.value
+          })
         });
+        const json = await r.json();
+        if (!r.ok) throw new Error(json.message||r.statusText);
+        msg.style.color='green'; msg.textContent=`✔ Product added`;
+        f.reset(); fetchAllProducts();
+      } catch(err){
+        msg.style.color='red'; msg.textContent=`✖ ${err.message}`;
+      }
+    });
 
-      // Add Product
-      document
-        .getElementById("productForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-          const sku = document.getElementById("sku").value.trim();
-          const name = document.getElementById("productName").value.trim();
-          const price = parseFloat(document.getElementById("price").value);
-          const inventory = parseInt(
-            document.getElementById("inventory").value
-          );
-          const brandPhoneNumber = document
-            .getElementById("brandPhoneNumber")
-            .value.trim();
-          const owned_by = document.getElementById("owned_by").value;
-          const messageDiv = document.getElementById("product-message");
-
-          try {
-            const response = await fetch(`${PRODUCT_API}/addProduct`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                sku,
-                name,
-                price,
-                inventory,
-                brandPhoneNumber,
-                owned_by,
-              }),
-            });
-            const data = await response.json();
-            if (response.ok) {
-              messageDiv.style.color = "green";
-              messageDiv.textContent = `Product "${name}" added successfully!`;
-              this.reset();
-              fetchAllProducts();
-            } else {
-              messageDiv.style.color = "red";
-              messageDiv.textContent = data.message || "Error adding product.";
-            }
-          } catch (err) {
-            messageDiv.style.color = "red";
-            messageDiv.textContent = `Network error: ${err.message}`;
-          }
+    // --- Fetch All Products ---
+    async function fetchAllProducts(){
+      const div=document.getElementById("all-products");
+      div.textContent='Loading…';
+      try {
+        const r=await fetch(`${PRODUCT_API}/fetchAllProducts`);
+        const { products } = await r.json();
+        if (!products.length) throw new Error('No products');
+        let tbl=`
+          <table><thead>
+          <tr><th>SKU</th><th>Name</th><th>Price</th>
+          <th>Qty</th><th>Phone</th><th>Supplier</th></tr>
+          </thead><tbody>`;
+        products.forEach(p=>{
+          tbl+=`
+            <tr>
+              <td>${p.sku}</td><td>${p.name}</td>
+              <td>$${p.price.toFixed(2)}</td>
+              <td>${p.inventory}</td>
+              <td>${p.brandPhoneNumber||''}</td>
+              <td>${p.owned_by_supplier?.supplier_id||'N/A'}</td>
+            </tr>`;
         });
+        tbl+='</tbody></table>';
+        div.innerHTML=tbl;
+      } catch(e){
+        div.innerHTML=`<p class="empty-msg">${e.message}</p>`;
+      }
+    }
 
-      // Fetch all products
-      async function fetchAllProducts() {
-        const div = document.getElementById("all-products");
-        div.innerHTML = "Loading...";
-        try {
-          const res = await fetch(`${PRODUCT_API}/fetchAllProducts`);
-          const data = await res.json();
-          if (Array.isArray(data.products) && data.products.length > 0) {
-            let html = `<table><thead>
+    // --- Fetch Orders by Phone ---
+    document.getElementById("orderForm").addEventListener("submit", async e=>{
+      e.preventDefault();
+      const phone = e.target.orderPhoneNumber.value.trim().replace(/[\s()-]/g,'');
+      const out = document.getElementById("order-results");
+      out.textContent = 'Loading…';
+      try {
+        const r = await fetch(`${ORDER_API}/fetchOrder?phoneNumber=${encodeURIComponent(phone)}`);
+        const { orders, phoneNumber, totalOrders } = await r.json();
+        if (!orders.length) throw new Error('No orders found');
+        let html=`
+          <p><strong>Phone:</strong> ${phoneNumber||phone}</p>
+          <p><strong>Total Orders:</strong> ${totalOrders||orders.length}</p>
+          <table><thead>
+            <tr><th>ID</th><th>SKU</th><th>Name</th></tr>
+          </thead><tbody>`;
+        orders.forEach(o=>{
+          html+=`<tr>
+            <td>${o.orderID}</td><td>${o.sku}</td><td>${o.prodName}</td>
+          </tr>`;
+        });
+        html+='</tbody></table>';
+        out.innerHTML=html;
+      } catch(err){
+        out.innerHTML=`<p class="empty-msg">${err.message}</p>`;
+      }
+    });
+
+    // --- Fetch Late Orders + Render Call Cards ---
+    document.getElementById("lateOrderForm").addEventListener("submit", async e=>{
+      e.preventDefault();
+      const phone = e.target.lateBrandPhoneNumber.value.trim();
+      const resDiv = document.getElementById("late-order-results");
+      resDiv.innerHTML = 'Loading…';
+      try {
+        const url = `http://localhost:3000/api/v1/order/lateOrders?brandPhoneNumber=${encodeURIComponent(phone)}`;
+        const r = await fetch(url, {
+          method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({})
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.message||r.statusText);
+
+        if (data.orders.length) {
+          let header = `
+            <p><strong>Supplier:</strong> ${data.supplierName}</p>
+            <p><strong>Total Late Orders:</strong> ${data.totalOrders}</p>
+            <table><thead>
               <tr>
-                <th>SKU</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Inventory</th>
-                <th>Brand Phone</th>
-                <th>Supplier</th>
+                <th>Order ID</th><th>SKU</th><th>Name</th>
+                <th>Qty</th><th>Expected</th><th>Address</th>
               </tr>
             </thead><tbody>`;
+          data.orders.forEach(o=>{
+            header += `<tr>
+              <td>${o.orderID}</td><td>${o.sku}</td><td>${o.prodName}</td>
+              <td>${o.quantity}</td>
+              <td>${new Date(o.expectedDeliveryDate).toLocaleDateString()}</td>
+              <td>${o.shippingAddress}</td>
+            </tr>`;
+          });
+          header += `</tbody></table>`;
+          resDiv.innerHTML = header;
 
-            for (const p of data.products) {
-              html += `<tr>
-                <td>${p.sku}</td>
-                <td>${p.name}</td>
-                <td>$${p.price.toFixed(2)}</td>
-                <td>${p.inventory}</td>
-                <td>${p.brandPhoneNumber || ""}</td>
-                <td>${p.owned_by_supplier ? p.owned_by_supplier.supplier_id : "N/A"}</td>
-              </tr>`;
-            }
-
-            html += "</tbody></table>";
-            div.innerHTML = html;
-          } else {
-            div.innerHTML = `<p class="empty-msg">No products found.</p>`;
-          }
-        } catch (err) {
-          div.innerHTML = `<p style="color:red;">Error loading products: ${err.message}</p>`;
+          // now call cards
+          const cardContainer = document.createElement('div');
+          data.supplierPhoneNumbers.forEach(num => {
+            renderCallCard(cardContainer, data.supplierName, num);
+          });
+          resDiv.appendChild(cardContainer);
+        } else {
+          resDiv.innerHTML = `<p class="empty-msg">No late orders found.</p>`;
         }
+      } catch(err) {
+        resDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
       }
-      // Fetch products by brand phone number
-      // Fetch Orders by Phone Number
-      document
-        .getElementById("orderForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-          console.log("Order form submitted"); 
-          const phone = document
-            .getElementById("orderPhoneNumber")
-            .value.trim()
-            .replace(/[\s()-]/g, "");
-          const resultDiv = document.getElementById("order-results");
-          resultDiv.innerHTML = "Loading...";
-          try {
-            const res = await fetch(
-              `${ORDER_API}/fetchOrder?phoneNumber=${phone}`
-            );
-            const data = await res.json();
-            console.log("Data is: ", data);
+    });
 
-            if (data && Array.isArray(data.orders) && data.orders.length > 0) {
-              let html = `
-        <p><strong>Phone Number:</strong> ${data.phoneNumber || phone}</p>
-        <p><strong>Total Orders:</strong> ${data.totalOrders || data.orders.length}</p>
-        <table>
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>SKU</th>
-              <th>Product Name</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
-              for (const o of data.orders) {
-                html += `<tr>
-          <td>${o.orderID || ""}</td>
-          <td>${o.sku || ""}</td>
-          <td>${o.prodName || ""}</td>
-        </tr>`;
-              }
-              html += "</tbody></table>";
-              resultDiv.innerHTML = html;
-            } else {
-              resultDiv.innerHTML = `<p class="empty-msg">No orders found for this phone number.</p>`;
-            }
-          } catch (err) {
-            resultDiv.innerHTML = `<p style="color:red;">Error fetching orders: ${err.message}</p>`;
-          }
-        });
-
-      // Initial load
-      loadSuppliers();
-      fetchAllProducts();
-    </script>
-  </body>
+    // initial
+    loadSuppliers();
+    fetchAllProducts();
+  </script>
+</body>
 </html>

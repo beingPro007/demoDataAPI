@@ -237,8 +237,15 @@ const lateOrders = asynchandler(async (req, res) => {
             .filter(Boolean)
     )];
 
+    const supplierName = [...new Set(
+        products
+            .map(product => product.owned_by_supplier?.name)
+            .filter(Boolean)
+    )];
+
+
     res.status(200).json({
-        supplierName: user.name,
+        supplierName: supplierName[0],
         totalOrders: orders.length,
         orders,
         supplierPhoneNumbers,
